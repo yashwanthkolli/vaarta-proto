@@ -4,6 +4,7 @@ const http = require('http')
 const config = require('./config')
 const mediasoup =require('mediasoup')
 const Room = require('./Room')
+const Peer = require('./Peer')
 
 const router = require('./router')
 
@@ -86,7 +87,8 @@ io.on('connection', (socket) => {
         room_id
     }, callback) => {
         if (roomList.has(room_id)) {
-            callback('already exists')
+            console.log('Already Exists')
+            // callback('already exists')
         } else {
             console.log('---created room--- ', room_id)
             let worker = await getMediasoupWorker()
@@ -95,8 +97,21 @@ io.on('connection', (socket) => {
         }
     })
 
-    socket.on('join', ({name, room}, callback) => {
-        
+    socket.on('join', async ({ room_id, name }, callback) => {
+
+        console.log('---user joined--- \"' + room_id + '\": ' + name)
+        if (!roomList.has(room_id)) {
+            // return cb({
+            //     error: 'room does not exist'
+            // })
+            console.log('---created room--- ', room_id)
+            let worker = await getMediasoupWorker()
+            roomList.set(room_id, new Room(room_id, worker, io))
+        }
+        roomList.get(room_id).addPeer(new Peer(socket.id, name))
+        socket.room_id = room_id
+
+        // cb(roomList.get(room_id).toJson())
     })
 
     socket.on('disconnect', () => {

@@ -14,8 +14,8 @@ const Chat = ({location}) => {
         setName(name)
         setRoom(room)
 
-        socket.emit('join', {room, name})
-        socket.emit('createRoom', {room_id: room})
+        socket.emit('join', {room_id: room, name})
+        // socket.emit('createRoom', {room_id: room})
     }, [location])
     
     return(
